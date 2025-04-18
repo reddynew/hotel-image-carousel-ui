@@ -1,8 +1,11 @@
 
 import * as React from "react";
-import useEmblaCarousel from "embla-carousel-react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
-import { Button } from "./ui/button";
+import { CircleDot } from "lucide-react";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+} from "@/components/ui/carousel";
 
 interface ImageCarouselProps {
   images: string[];
@@ -10,15 +13,16 @@ interface ImageCarouselProps {
 }
 
 export function ImageCarousel({ images, alt }: ImageCarouselProps) {
-  const [emblaRef, emblaApi] = useEmblaCarousel();
+  const [api, setApi] = React.useState<any>();
+  const [current, setCurrent] = React.useState(0);
 
-  const scrollPrev = React.useCallback(() => {
-    if (emblaApi) emblaApi.scrollPrev();
-  }, [emblaApi]);
+  React.useEffect(() => {
+    if (!api) return;
 
-  const scrollNext = React.useCallback(() => {
-    if (emblaApi) emblaApi.scrollNext();
-  }, [emblaApi]);
+    api.on("select", () => {
+      setCurrent(api.selectedScrollSnap());
+    });
+  }, [api]);
 
   if (images.length === 0) return null;
 
@@ -29,48 +33,45 @@ export function ImageCarousel({ images, alt }: ImageCarouselProps) {
         <img
           src={images[0]}
           alt={alt}
-          className="w-full h-48 object-cover"
+          className="w-full h-48 object-cover rounded-t-lg"
         />
       </div>
     );
   }
 
   return (
-    <div className="relative w-full h-48">
-      <div className="overflow-hidden h-full" ref={emblaRef}>
-        <div className="flex h-full">
+    <div className="relative w-full">
+      <Carousel setApi={setApi} className="w-full">
+        <CarouselContent>
           {images.map((image, index) => (
-            <div
-              className="flex-[0_0_100%] min-w-0 relative h-full"
-              key={index}
-            >
-              <img
-                src={image}
-                alt={`${alt} - Image ${index + 1}`}
-                className="w-full h-full object-cover"
-              />
-            </div>
+            <CarouselItem key={index}>
+              <div className="relative h-48">
+                <img
+                  src={image}
+                  alt={`${alt} - Image ${index + 1}`}
+                  className="w-full h-full object-cover rounded-t-lg"
+                />
+              </div>
+            </CarouselItem>
           ))}
-        </div>
+        </CarouselContent>
+      </Carousel>
+
+      <div className="absolute bottom-2 left-0 right-0 flex items-center justify-center gap-2">
+        {images.map((_, index) => (
+          <button
+            key={index}
+            onClick={() => api?.scrollTo(index)}
+            className={`p-1 rounded-full transition-all ${
+              current === index
+                ? "text-primary scale-125"
+                : "text-gray-400 hover:text-gray-600"
+            }`}
+          >
+            <CircleDot className="h-3 w-3" />
+          </button>
+        ))}
       </div>
-      
-      <Button
-        variant="outline"
-        size="icon"
-        className="absolute left-2 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full bg-white/80 p-0 hover:bg-white/90"
-        onClick={scrollPrev}
-      >
-        <ChevronLeft className="h-4 w-4" />
-      </Button>
-      
-      <Button
-        variant="outline"
-        size="icon"
-        className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full bg-white/80 p-0 hover:bg-white/90"
-        onClick={scrollNext}
-      >
-        <ChevronRight className="h-4 w-4" />
-      </Button>
     </div>
   );
 }
