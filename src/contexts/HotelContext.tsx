@@ -22,7 +22,7 @@ interface Booking {
 interface HotelContextType {
   hotels: Hotel[];
   bookings: Booking[];
-  addBooking: (booking: Partial<Booking>) => void;
+  addBooking: (booking: Omit<Booking, 'id'>) => void;
 }
 
 const HotelContext = createContext<HotelContextType | undefined>(undefined);
@@ -72,8 +72,8 @@ export const HotelProvider = ({ children }: { children: ReactNode }) => {
 
   const [bookings, setBookings] = useState<Booking[]>([]);
 
-  const addBooking = (booking: Partial<Booking>) => {
-    setBookings((prev) => [...prev, { ...booking, id: Date.now() }]);
+  const addBooking = (booking: Omit<Booking, 'id'>) => {
+    setBookings((prev) => [...prev, { ...booking, id: Date.now() } as Booking]);
   };
 
   return (
