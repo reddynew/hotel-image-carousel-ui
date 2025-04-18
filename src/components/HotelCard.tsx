@@ -8,8 +8,9 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { MapPin } from "lucide-react";
+import { Heart, MapPin } from "lucide-react";
 import { ImageCarousel } from "./ImageCarousel";
+import { useState } from "react";
 
 interface HotelCardProps {
   hotel: {
@@ -18,7 +19,7 @@ interface HotelCardProps {
     location: string;
     price: number;
     description: string;
-    images: string[]; // Changed from image: string to images: string[]
+    images: string[];
     latitude?: number;
     longitude?: number;
   };
@@ -33,16 +34,28 @@ export const HotelCard = ({
   onViewOnMap,
   isHighlighted = false 
 }: HotelCardProps) => {
+  const [isFavorite, setIsFavorite] = useState(false);
+
   return (
     <Card
       className={`overflow-hidden transition-all duration-200 card-hover ${
         isHighlighted ? 'ring-2 ring-primary shadow-lg' : ''
       }`}
     >
-      <ImageCarousel 
-        images={Array.isArray(hotel.images) ? hotel.images : [hotel.images]} 
-        alt={hotel.name}
-      />
+      <div className="relative">
+        <ImageCarousel 
+          images={Array.isArray(hotel.images) ? hotel.images : [hotel.images]} 
+          alt={hotel.name}
+        />
+        <button
+          onClick={() => setIsFavorite(!isFavorite)}
+          className="absolute top-4 right-4 z-10 p-2 rounded-full bg-white/80 hover:bg-white/90 transition-colors"
+        >
+          <Heart 
+            className={`h-5 w-5 transition-colors ${isFavorite ? 'fill-red-500 text-red-500' : 'text-gray-600'}`}
+          />
+        </button>
+      </div>
       <CardHeader>
         <div className="flex justify-between items-start">
           <div>
